@@ -1,0 +1,8 @@
+DaoType=S2JDBC
+DefaultResourcePath=/Smy/src/main/resources
+DefaultRootPackage=jp.co.logacy
+DefaultSrcPath=/Smy/src/main/java
+ServletPath=/Smy
+ViewType=SA-Struts
+WebContentsRoot=src/main/webapp/
+eclipse.preferences.version=1
