@@ -31,6 +31,11 @@ public class IndexAction {
 		return "index.jsp";
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	@Execute(validator = false)
 	public String result() throws Exception {
 		
@@ -51,7 +56,7 @@ public class IndexAction {
 		kensakuJokenDto.carrier = indexForm.carrier;
 		kensakuJokenDto.genreInformationFlag = indexForm.genreInformationFlag;
 		
-		searchResultDto = searchService.getSearchResult(kensakuJokenDto);
+		searchResultDto = searchService.searchDvdInformation(kensakuJokenDto);
 		
 		return "result.jsp";
 	}
