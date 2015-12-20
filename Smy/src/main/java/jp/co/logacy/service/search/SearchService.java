@@ -14,14 +14,14 @@ public class SearchService {
 	public ApiService apiService;
 	
 	/**
-	 * 検索条件から検索結果を返す
+	 * DVD,Bluray情報を検索する
 	 * @param kensakuJokenDto {@link KensakuJokenDto}
 	 * @return searchResultDto
 	 * @throws Exception 
 	 */
-	public SearchResultDto getSearchResult(final KensakuJokenDto kensakuJokenDto) throws Exception {
+	public SearchResultDto searchDvdInformation(final KensakuJokenDto kensakuJokenDto) throws Exception {
 		
-		searchResultDto = apiService.getApiResult(kensakuJokenDto);
+		searchResultDto = apiService.getDvdInformationSearchResult(kensakuJokenDto);
 		
 		return searchResultDto;
 	}

@@ -31,6 +31,8 @@ public class SearchResultDto {
 	/** 総ページ数 */
 	public int pageCount;
 
-	public List<ItemDto> Items;
+	public List<ItemsDto> Items;
+	
+	public List<String> GenreInformation;
 	
 }
