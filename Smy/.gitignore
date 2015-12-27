@@ -2,3 +2,7 @@
 *.jar
 *.war
 *.ear
+/.settings/
+/work
+/target
+

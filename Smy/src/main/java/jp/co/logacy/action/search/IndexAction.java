@@ -2,11 +2,13 @@ package jp.co.logacy.action.search;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 
 import jp.co.logacy.dto.search.KensakuJokenDto;
 import jp.co.logacy.dto.search.SearchResultDto;
+import jp.co.logacy.exception.SmyException;
 import jp.co.logacy.form.search.IndexForm;
 import jp.co.logacy.service.search.SearchService;
 
@@ -24,6 +26,8 @@ public class IndexAction {
 	
 	@Resource
 	public SearchService searchService;
+	
+	final Logger log = Logger.getLogger(IndexAction.class.getName());
 
 	@Execute(validator = false)
 	public String index() {
@@ -32,13 +36,35 @@ public class IndexAction {
 	}
 
 	/**
-	 * 
+	 * 検索結果画面を表示する
 	 * @return
-	 * @throws Exception
 	 */
 	@Execute(validator = false)
-	public String result() throws Exception {
+	public String result() {
 		
+		setKensakuJokenToDto(indexForm, kensakuJokenDto);
+		
+		if (isValidKensakuJoken(kensakuJokenDto)) {
+			log.info("検索条件が設定されていません");
+			return "index.jsp";
+		}
+		
+		searchResultDto = searchService.searchDvdInformation(kensakuJokenDto);
+		
+		return "result.jsp";
+	}
+	
+	/**
+	 * 検索条件をDTOに詰める
+	 * 
+	 * @param {@link IndexForm}
+	 * @param {@link KensakuJokenDto}
+	 */
+	private void setKensakuJokenToDto(final IndexForm indexForm, final KensakuJokenDto kensakuJokenDto) {
+		
+		if (indexForm == null || kensakuJokenDto == null) {
+			throw new SmyException();
+		}
 		kensakuJokenDto.title = indexForm.title;
 		kensakuJokenDto.artistName = indexForm.artistName;
 		kensakuJokenDto.label = indexForm.label;
@@ -55,9 +81,35 @@ public class IndexAction {
 		kensakuJokenDto.limitedFlag = indexForm.limitedFlag;
 		kensakuJokenDto.carrier = indexForm.carrier;
 		kensakuJokenDto.genreInformationFlag = indexForm.genreInformationFlag;
+	}
+	
+	/**
+	 * 検索条件パラメータにエラーがあるかどうか
+	 * @param {@link KensakuJokenDto}
+	 * @return true:パラメータエラーあり<br>
+	 *         false:パラメータエラーなし
+	 */
+	private boolean isValidKensakuJoken(final KensakuJokenDto kensakuJokenDto) {
 		
-		searchResultDto = searchService.searchDvdInformation(kensakuJokenDto);
+		if(kensakuJokenDto == null) {
+			return true;
+		}
 		
-		return "result.jsp";
+		if (kensakuJokenDto.title != null && !kensakuJokenDto.title.equals("")) {
+			return false;
+		}
+		if (kensakuJokenDto.artistName != null && !kensakuJokenDto.artistName.equals("")) {
+			return false;
+		}
+		if (kensakuJokenDto.label != null && !kensakuJokenDto.label.equals("")) {
+			return false;
+		}
+		if (kensakuJokenDto.jan != null && !kensakuJokenDto.jan.equals("")) {
+			return false;
+		}
+		if (kensakuJokenDto.booksGenreId != null && !kensakuJokenDto.booksGenreId.equals("")) {
+			return false;
+		}
+		return true;
 	}
 }

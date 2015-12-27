@@ -16,6 +16,8 @@
 	</c:forEach>
 </table>
 
+<a href="/Smy/search/"><c:out value="検索ページへ"/></a>
+
 
 </body>
 </html>

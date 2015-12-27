@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 
 import jp.co.logacy.dto.search.KensakuJokenDto;
 import jp.co.logacy.dto.search.SearchResultDto;
+import jp.co.logacy.exception.SmyException;
 
 public class SearchService {
 
@@ -14,12 +15,15 @@ public class SearchService {
 	public ApiService apiService;
 	
 	/**
-	 * DVD,Bluray情報を検索する
-	 * @param kensakuJokenDto {@link KensakuJokenDto}
-	 * @return searchResultDto
-	 * @throws Exception 
+	 * {@link ApiService#getDvdInformationSearchResult(KensakuJokenDto)}のヒューリティクス
+	 * @param {@link KensakuJokenDto}
+	 * @return {@link SearchResultDto} 
 	 */
-	public SearchResultDto searchDvdInformation(final KensakuJokenDto kensakuJokenDto) throws Exception {
+	public SearchResultDto searchDvdInformation(final KensakuJokenDto kensakuJokenDto) {
+		
+		if (kensakuJokenDto == null) {
+			throw new SmyException();
+		}
 		
 		searchResultDto = apiService.getDvdInformationSearchResult(kensakuJokenDto);
 		

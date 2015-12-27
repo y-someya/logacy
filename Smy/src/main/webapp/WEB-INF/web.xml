@@ -146,6 +146,11 @@ version="2.4">
     </welcome-file-list>
 	-->
     
+    <error-page>
+		<exception-type>jp.co.logacy.exception.SmyException</exception-type>
+		<location>/WEB-INF/view/error/error.jsp</location>
+	</error-page>
+    
     <jsp-config>
     	<jsp-property-group>
     		<url-pattern>*.jsp</url-pattern>
