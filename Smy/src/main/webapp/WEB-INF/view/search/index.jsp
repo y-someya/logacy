@@ -7,7 +7,7 @@
 <h1>Hello World!</h1>
 <form action="result" method="post">
 	<label>タイトル名</label>
-	<input type="text" name="title"></input><br>
+	<input type="text" name="title" value="<c:out value="${kensakuJokenDto.title}"/>"><br>
 	<label>出演者名</label>
 	<input type="text" name="artistName"></input><br>
 	<label>販売元名</label>
@@ -31,7 +31,7 @@
 	<label>品切れ等、購入不可商品表示フラグ</label>
 	<input type="text" name="outOfStockFlag"></input><br>
 	<label>ソート</label>
-	<input type="text" name="sort"></input><br>
+	<input type="text" name="sort" value="<c:out value="${kensakuJokenDto.sort}"/>"><br>
 	<label>限定フラグ</label>
 	<input type="text" name="limitedFlag"></input><br>
 	<label>キャリア</label>
