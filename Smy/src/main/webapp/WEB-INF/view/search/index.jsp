@@ -4,7 +4,10 @@
 <title>楽天ブックスDVD/Blu-ray検索</title>
 </head>
 <body>
-<h1>Hello World!</h1>
+<c:forEach var="obj" items="${errorMap}" varStatus="status">
+	<c:out value="${obj.value}"/><br>
+</c:forEach>
+
 <form action="result" method="post">
 	<label>タイトル名</label>
 	<input type="text" name="title" value="<c:out value="${kensakuJokenDto.title}"/>"><br>

@@ -1,11 +1,14 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
- <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <title>Dolteng Auto Generated</title>
 </head>
 <body>
 
+<c:if test="${searchResultDto.Items.size() == 0}">
+	<c:out value="検索結果は0件です"/>
+</c:if>
 <table border=1>
 	<c:forEach var="Items" items="${searchResultDto.Items}" varStatus="status">
 		<tr>

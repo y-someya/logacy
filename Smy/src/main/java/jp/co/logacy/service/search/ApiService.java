@@ -3,7 +3,6 @@ package jp.co.logacy.service.search;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -18,12 +17,48 @@ import jp.co.logacy.dto.search.SearchResultDto;
 import jp.co.logacy.exception.SmyException;
 import net.arnx.jsonic.JSON;
 
+/**
+ * API管理サービスクラス
+ * @author User
+ *
+ */
 public class ApiService {
 
 	@Resource
 	public SearchResultDto searchResultDto;
 	
 	final Logger log = Logger.getLogger(ApiService.class.getName());
+	
+	/**
+	 * APIレスポンスコード管理enum
+	 * @author User
+	 *
+	 */
+	public enum ApiResponseCode {
+		SUCESS(200, "正常に値が返されました"),
+		PARAMETER_ERROR(400, "必須パラメータが不足しています"),
+		NOT_FOUND_DATA(404, "検索対象のデータが存在しません"),
+		MOST_REQUEST(429, "リクエスト過多"),
+		RAKUTEN_ERROR(500, "楽天エラー"),
+		MENTENANCE(503, "メンテナンス中");
+		
+		ApiResponseCode(final int responseCode, final String message) {
+			this.responseCode = responseCode;
+			this.message = message;
+		}
+		
+		private int responseCode;
+		
+		private String message;
+		
+		public int getResponseCode() {
+			return responseCode;
+		}
+		
+		public String getMessage() {
+			return message;
+		}
+	}
 
 	/**
 	 * Bluray,DVD情報を検索し、結果を返す
@@ -45,24 +80,30 @@ public class ApiService {
 			log.info("レスポンスコード[" + con.getResponseCode() + "] " + "レスポンスメッセージ[" + con.getResponseMessage() + "]");
 			log.info("code : " + con.getResponseCode());
 
-			InputStreamReader isr = new InputStreamReader(con.getInputStream(), "UTF-8");
-			BufferedReader reader = new BufferedReader(isr);
-
-			StringBuffer buffer = new StringBuffer();
-			String str;
-			while ((str = reader.readLine()) != null) {
-				buffer.append(str + "\n");
+			if (con.getResponseCode() == ApiResponseCode.SUCESS.getResponseCode()) {
+				InputStreamReader isr = new InputStreamReader(con.getInputStream(), "UTF-8");
+				BufferedReader reader = new BufferedReader(isr);
+	
+				StringBuffer buffer = new StringBuffer();
+				String str;
+				while ((str = reader.readLine()) != null) {
+					buffer.append(str + "\n");
+				}
+	
+				String json = new String(buffer);
+				log.info(json);
+	
+				searchResultDto = JSON.decode(json, SearchResultDto.class);
+			} else {
+				printErrorLog(con.getResponseCode());
+				throw new IOException();
 			}
-
-			String json = new String(buffer);
-			log.info(json);
-
-			searchResultDto = JSON.decode(json, SearchResultDto.class);
-			log.info("getDvdInformationSearchResult終了");
-
+			
 			return searchResultDto;
 		} catch (IOException e) {
 			throw new SmyException("Bluray,DVD情報の検索に失敗しました");
+		} finally {
+			log.info("getDvdInformationSearchResult終了");
 		}
 	}
 	
@@ -71,16 +112,17 @@ public class ApiService {
 	 * 
 	 * @param {@link KensakuJokenDto}
 	 * @return ApiUrl
-	 * @throws UnsupportedEncodingException 
+	 * @throws IOException 
 	 */
-	public String createApiUrl(final KensakuJokenDto kensakuJokenDto) {
+	public String createApiUrl(final KensakuJokenDto kensakuJokenDto) throws IOException {
 		try {
 			StringBuilder apiUrl = new StringBuilder();
 			apiUrl.append(ApiConst.DVD_INFORMATION_ACQUISITION_API_URL);
 
 			return createApiUrlParameter(kensakuJokenDto, apiUrl).toString();
 		} catch (IOException e) {
-			throw new SmyException("DVD,Bluray情報検索API接続用のURL作成に失敗しました");
+			log.error("DVD,Bluray情報検索API接続用のURL作成に失敗しました");
+			throw e;
 		}
 	}
 	
@@ -180,9 +222,28 @@ public class ApiService {
 
 			return apiUrl;
 		} catch (IOException e) {
-			log.error("URLencodeに失敗しました");
+			log.error("URLEncodeに失敗しました");
 			throw e;
 		}
+	}
+	
+	/**
+	 * APIレスポンスエラーログを出力する
+	 * @param errorCode
+	 */
+	public void printErrorLog(final int errorCode) {
+		
+		if (errorCode == ApiResponseCode.PARAMETER_ERROR.getResponseCode()) {
+			log.error(ApiResponseCode.PARAMETER_ERROR.getMessage());
+		} else if (errorCode == ApiResponseCode.NOT_FOUND_DATA.getResponseCode()) {
+			log.error(ApiResponseCode.NOT_FOUND_DATA.getMessage());
+		} else if (errorCode == ApiResponseCode.MOST_REQUEST.getResponseCode()) {
+			log.error(ApiResponseCode.MENTENANCE.getMessage());
+		} else if (errorCode == ApiResponseCode.RAKUTEN_ERROR.getResponseCode()) {
+			log.error(ApiResponseCode.RAKUTEN_ERROR.getMessage());
+		} else if (errorCode == ApiResponseCode.MENTENANCE.getResponseCode()) {
+			log.error(ApiResponseCode.MENTENANCE.getMessage());
+		}	
 	}
 
 }
