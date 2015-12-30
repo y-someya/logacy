@@ -1,5 +1,8 @@
 package jp.co.logacy.action.search;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
@@ -11,6 +14,7 @@ import jp.co.logacy.dto.search.SearchResultDto;
 import jp.co.logacy.exception.SmyException;
 import jp.co.logacy.form.search.IndexForm;
 import jp.co.logacy.service.search.SearchService;
+import jp.co.logacy.validator.search.SearchValidator;
 
 public class IndexAction {
 	
@@ -26,6 +30,8 @@ public class IndexAction {
 	
 	@Resource
 	public SearchService searchService;
+	
+	public Map<String, String> errorMap = new HashMap<String, String>();
 	
 	final Logger log = Logger.getLogger(IndexAction.class.getName());
 
@@ -44,8 +50,8 @@ public class IndexAction {
 		
 		setKensakuJokenToDto(indexForm, kensakuJokenDto);
 		
-		if (isValidKensakuJoken(kensakuJokenDto)) {
-			log.info("検索条件が設定されていません");
+		errorMap = validKensakuJoken(kensakuJokenDto);
+		if (errorMap != null && errorMap.size() > 0) {
 			return "index.jsp";
 		}
 		
@@ -84,32 +90,16 @@ public class IndexAction {
 	}
 	
 	/**
-	 * 検索条件パラメータにエラーがあるかどうか
-	 * @param {@link KensakuJokenDto}
-	 * @return true:パラメータエラーあり<br>
-	 *         false:パラメータエラーなし
+	 * {@link SearchValidator#validator(KensakuJokenDto, Map)}のヒューリティクス
+	 * @param {@link kensakuJokenDto}
+	 * @return errorMap
 	 */
-	private boolean isValidKensakuJoken(final KensakuJokenDto kensakuJokenDto) {
+	private Map<String, String> validKensakuJoken(final KensakuJokenDto kensakuJokenDto) {
 		
 		if(kensakuJokenDto == null) {
-			return true;
+			return errorMap;
 		}
 		
-		if (kensakuJokenDto.title != null && !kensakuJokenDto.title.equals("")) {
-			return false;
-		}
-		if (kensakuJokenDto.artistName != null && !kensakuJokenDto.artistName.equals("")) {
-			return false;
-		}
-		if (kensakuJokenDto.label != null && !kensakuJokenDto.label.equals("")) {
-			return false;
-		}
-		if (kensakuJokenDto.jan != null && !kensakuJokenDto.jan.equals("")) {
-			return false;
-		}
-		if (kensakuJokenDto.booksGenreId != null && !kensakuJokenDto.booksGenreId.equals("")) {
-			return false;
-		}
-		return true;
+		return new SearchValidator().validator(kensakuJokenDto, errorMap);
 	}
 }
