@@ -5,10 +5,10 @@ package jp.co.logacy.form.user;
  * @author User
  *
  */
-public class RegistForm {
+public class IndexForm {
 
 	/** ユーザID */
-	public int id;
+	public String id;
 	
 	/** ユーザ名 */
 	public String name;
@@ -17,7 +17,7 @@ public class RegistForm {
 	public String password;
 	
 	/** 年齢 */
-	public int age;
+	public String age;
 	
 	/** 性別 */
 	public String sex;

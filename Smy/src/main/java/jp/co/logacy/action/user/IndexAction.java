@@ -1,5 +1,8 @@
 package jp.co.logacy.action.user;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
@@ -8,28 +11,42 @@ import org.seasar.struts.annotation.Execute;
 
 import jp.co.logacy.dto.user.UserDto;
 import jp.co.logacy.exception.SmyException;
-import jp.co.logacy.form.user.CompleteForm;
-import jp.co.logacy.form.user.RegistForm;
+import jp.co.logacy.form.user.IndexForm;
 import jp.co.logacy.service.user.UserService;
+import jp.co.logacy.validator.user.UserRegistValidator;
 
 public class IndexAction {
 
 	@ActionForm
 	@Resource
-	protected RegistForm registForm;
-	
-	@ActionForm
-	@Resource
-	protected CompleteForm completeForm;
+	protected IndexForm indexForm;
 	
 	@Resource
-	public UserDto userDto;
+	protected UserDto userDto;
 	
 	@Resource
-	public UserService userService;
+	protected UserService userService;
+	
+	@Resource
+	protected Map<String, String> errorMap = new HashMap<>();
 	
 	final Logger log = Logger.getLogger(IndexAction.class.getName());
 	
+	/**
+	 * ユーザ登録
+	 * @return
+	 */
+	@Execute(validator=false)
+	public String index() {
+		return "index.jsp";
+	}
+
+	/**
+	 * 
+	 * ユーザ編集
+	 * @return
+	 */
+	@Execute(validator=false)
 	public String regist() {
 		return "regist.jsp";
 	}
@@ -38,12 +55,16 @@ public class IndexAction {
 	 * ユーザ登録完了
 	 * @return
 	 */
-	@Execute
+	@Execute(validator=false, urlPattern="/complete")
 	public String complete() {
 		
-		setUserInformationToDto(userDto, completeForm);
+		setUserInformationToDto(userDto, indexForm);
+		errorMap = validRegistUserInformation(userDto);
+		if (errorMap != null) {
+			return "regist.jsp";
+		}
 		userService.registUserInformation(userDto);
-		
+
 		return "complete.jsp";
 	}
 	
@@ -52,16 +73,36 @@ public class IndexAction {
 	 * @param {@link UserDto}
 	 * @param {@link CompleteForm}
 	 */
-	private void setUserInformationToDto(final UserDto userDto, final CompleteForm completeForm) {
-		if (userDto == null || completeForm == null) {
-			throw new SmyException();
+	private void setUserInformationToDto(final UserDto userDto, final IndexForm indexForm) {
+		if (indexForm == null) {
+			throw new SmyException("completeFormがnullです");
 		}
-		userDto.id = completeForm.id;
-		userDto.name = completeForm.name;
-		userDto.password = completeForm.password;
-		userDto.age = completeForm.age;
-		userDto.sex = completeForm.sex;
-		userDto.birthDay = completeForm.birthDay;
-		userDto.introduction = completeForm.introduction;
+		if (userDto == null) {
+			return;
+		}
+		userDto.id = indexForm.id;
+		userDto.name = indexForm.name;
+		userDto.password = indexForm.password;
+		userDto.age = indexForm.age;
+		userDto.sex = indexForm.sex;
+		userDto.birthDay = indexForm.birthDay;
+		userDto.introduction = indexForm.introduction;
+	}
+	
+	/**
+	 * {@link UserRegistValidator#validator(UserDto, Map)}のヒューリティクス
+	 * @param {@link UserDto}
+	 * @return errorMap
+	 */
+	private Map<String, String> validRegistUserInformation(final UserDto userDto) {
+		
+		try {
+			log.info("ユーザ登録バリデータ処理開始");
+			errorMap = new UserRegistValidator().validator(userDto, errorMap);
+			log.info("ユーザ登録バリデータ処理終了");
+			return errorMap;
+		} catch (SmyException e) {
+			throw new SmyException("ユーザ登録バリデータ処理中にエラーが発生しました" + e.getMessage());
+		}
 	}
 }
