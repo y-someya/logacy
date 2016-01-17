@@ -1,14 +1,18 @@
 package jp.co.logacy.dto.user;
 
+import java.io.Serializable;
+
 /**
  * ユーザ情報を保持するDTO
  * @author User
  *
  */
-public class UserDto {
+public class UserDto implements Serializable {
 
+	public static final long serialVersionUID = 1L;
+	
 	/** ユーザID */
-	public int id;
+	public String id;
 	
 	/** ユーザ名 */
 	public String name;
@@ -17,7 +21,7 @@ public class UserDto {
 	public String password;
 	
 	/** 年齢 */
-	public int age;
+	public String age;
 	
 	/** 性別 */
 	public String sex;
